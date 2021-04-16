@@ -3,7 +3,7 @@
 from aws_cdk import (
     core,
     aws_ec2,
-    aws_redshift,
+    aws_redshift
 )
 
 
@@ -16,17 +16,16 @@ class RedshiftClusterStack(core.Stack):
             scope=self,
             id="RedshiftCluster",
             # https://docs.aws.amazon.com/cdk/api/latest/python/aws_cdk.aws_redshift/Login.html
-            # The Login object creates and stores a Secrets Manager generated password by default, so there's no need to put your secrets in the CDK code directly
+            # The Login object creates and stores a Secrets Manager generated password by default,
+            # so there's no need to put your secrets in the CDK code directly
             master_user=aws_redshift.Login(
                 master_username="admin"
             ),
+            publicly_accessible=True,
+            cluster_type=aws_redshift.ClusterType.MULTI_NODE,
+            number_of_nodes=3,
             vpc=vpc
         )
-
-        # https://docs.aws.amazon.com/cdk/api/latest/python/aws_cdk.aws_redshift/Cluster.html#aws_cdk.aws_redshift.Cluster.add_rotation_single_user
-        # Adds single user rotation of the master password, which occurs every 30 days
-        # self.cluster.add_rotation_single_user(
-        #    automatically_after=core.Duration().to_days(30))
 
         core.CfnOutput(
             scope=self,
@@ -37,5 +36,5 @@ class RedshiftClusterStack(core.Stack):
         core.CfnOutput(
             scope=self,
             id="cluster_endpoint",
-            value=str(self.cluster.cluster_endpoint)
+            value=self.cluster.cluster_endpoint.socket_address
         )
